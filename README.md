@@ -78,6 +78,8 @@ After completing steps 1-4, you can start Level 2 by creating an issue titled "S
 
 📖 **[Level 2 Quick Reference](LEVEL-2-REFERENCE.md)** - Handy cheat sheet for GitHub keywords and concepts.
 
+🔄 **[Level 2 Workflow Diagram](LEVEL-2-WORKFLOW.md)** - Visual overview of the training flow.
+
 ---
 
 ### How to start this exercise
