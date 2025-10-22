@@ -1,0 +1,93 @@
+name: Step 0 # Start Level 2
+
+# Triggers the start of Level 2 training
+# This workflow is manually triggered to begin the Level 2 exercises
+
+on:
+  workflow_dispatch:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  actions: write
+  issues: write
+
+env:
+  STEP_5_FILE: ".github/steps/5-create-an-issue.md"
+
+jobs:
+  start_level_2:
+    name: Start Level 2
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.issue.title == 'Start Level 2 Training' && github.event.action == 'opened')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get response templates
+        uses: actions/checkout@v4
+        with:
+          repository: skills/exercise-toolkit
+          path: exercise-toolkit
+          ref: v0.1.0
+
+      - name: Find or create exercise issue
+        id: find-issue
+        run: |
+          # Look for existing "Start Level 2 Training" issue
+          ISSUE_NUMBER=$(gh issue list --label "level-2" --state open --json number,title --jq '.[] | select(.title=="Start Level 2 Training") | .number' | head -n 1)
+          
+          if [ -z "$ISSUE_NUMBER" ]; then
+            # Create new issue for Level 2
+            ISSUE_NUMBER=$(gh issue create \
+              --title "Start Level 2 Training" \
+              --body "Welcome to Level 2! This issue will track your progress through intermediate GitHub skills." \
+              --label "level-2" | grep -oP '(?<=/issues/)\d+')
+          fi
+          
+          echo "issue-number=$ISSUE_NUMBER" >> $GITHUB_OUTPUT
+          echo "issue-url=https://github.com/${{ github.repository }}/issues/$ISSUE_NUMBER" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post welcome message
+        run: |
+          gh issue comment "${{ steps.find-issue.outputs.issue-url }}" \
+            --body "# Welcome to Introduction to GitHub - Level 2! 🚀
+
+You've completed the basics, and now you're ready to learn intermediate GitHub collaboration skills!
+
+In Level 2, you'll learn:
+- 📝 Creating and managing issues
+- 🏷️ Using labels to organize work
+- 🔗 Connecting issues to pull requests
+- 👀 Reviewing code changes
+- ✨ Using GitHub automation
+
+Let's get started with Step 5!"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post Step 5 content
+        run: |
+          gh issue comment "${{ steps.find-issue.outputs.issue-url }}" \
+            --body-file ${{ env.STEP_5_FILE }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post watching message
+        run: |
+          gh issue comment "${{ steps.find-issue.outputs.issue-url }}" \
+            --body-file exercise-toolkit/markdown-templates/step-feedback/watching-for-progress.md
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable Step 5 workflow
+        run: |
+          gh workflow enable "Step 5"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

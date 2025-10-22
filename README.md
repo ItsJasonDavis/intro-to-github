@@ -47,6 +47,35 @@ In this exercise, you will:
 3. Open a pull request
 4. Merge your pull request
 
+## Level 2: Intermediate GitHub Collaboration
+
+After completing the basic exercises above, you can continue with Level 2 to learn more advanced GitHub features!
+
+![](https://github.com/JayDay1993/intro-to-github/actions/workflows/5-create-an-issue.yml/badge.svg)
+![](https://github.com/JayDay1993/intro-to-github/actions/workflows/6-work-with-labels.yml/badge.svg)
+![](https://github.com/JayDay1993/intro-to-github/actions/workflows/7-reference-issue-in-pr.yml/badge.svg)
+![](https://github.com/JayDay1993/intro-to-github/actions/workflows/8-review-pull-request.yml/badge.svg)
+![](https://github.com/JayDay1993/intro-to-github/actions/workflows/9-merge-and-close-issue.yml/badge.svg)
+
+- **Who is this for**: Developers who completed Level 1 and want to learn intermediate GitHub features.
+- **What you'll learn**: Issues, labels, issue references, pull request reviews, and GitHub automation.
+- **Prerequisites**: Complete Level 1 (steps 1-4 above).
+- **How long**: This exercise takes approximately 45 minutes to complete.
+
+In Level 2, you will:
+
+5. Create an issue to track work
+6. Apply labels to organize issues
+7. Reference issues in pull requests
+8. Review and approve pull requests
+9. Merge and automatically close issues
+
+### How to start Level 2
+
+After completing steps 1-4, you can start Level 2 by creating an issue titled "Start Level 2 Training" or by manually triggering the Level 2 workflow in the Actions tab.
+
+---
+
 ### How to start this exercise
 
 1. Right-click **Copy Exercise** and open the link in a new tab.
