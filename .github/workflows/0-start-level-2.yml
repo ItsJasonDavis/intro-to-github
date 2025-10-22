@@ -56,19 +56,22 @@ jobs:
 
       - name: Post welcome message
         run: |
+          cat << 'EOF' > /tmp/welcome.md
+          # Welcome to Introduction to GitHub - Level 2! 🚀
+
+          You've completed the basics, and now you're ready to learn intermediate GitHub collaboration skills!
+
+          In Level 2, you'll learn:
+          - 📝 Creating and managing issues
+          - 🏷️ Using labels to organize work
+          - 🔗 Connecting issues to pull requests
+          - 👀 Reviewing code changes
+          - ✨ Using GitHub automation
+
+          Let's get started with Step 5!
+          EOF
           gh issue comment "${{ steps.find-issue.outputs.issue-url }}" \
-            --body "# Welcome to Introduction to GitHub - Level 2! 🚀
-
-You've completed the basics, and now you're ready to learn intermediate GitHub collaboration skills!
-
-In Level 2, you'll learn:
-- 📝 Creating and managing issues
-- 🏷️ Using labels to organize work
-- 🔗 Connecting issues to pull requests
-- 👀 Reviewing code changes
-- ✨ Using GitHub automation
-
-Let's get started with Step 5!"
+            --body-file /tmp/welcome.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

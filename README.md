@@ -74,6 +74,10 @@ In Level 2, you will:
 
 After completing steps 1-4, you can start Level 2 by creating an issue titled "Start Level 2 Training" or by manually triggering the Level 2 workflow in the Actions tab.
 
+📚 **[Read the Level 2 Guide](LEVEL-2-GUIDE.md)** for detailed instructions and tips.
+
+📖 **[Level 2 Quick Reference](LEVEL-2-REFERENCE.md)** - Handy cheat sheet for GitHub keywords and concepts.
+
 ---
 
 ### How to start this exercise
