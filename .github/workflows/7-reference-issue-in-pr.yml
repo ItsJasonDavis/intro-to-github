@@ -73,9 +73,11 @@ jobs:
 
       - name: Check for issue reference in PR body or commits
         id: check-reference
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           # Check if PR body contains issue reference (e.g., #1, Fixes #1, Closes #1)
-          if echo "${{ github.event.pull_request.body }}" | grep -iE '(fixes|closes|resolves)?[[:space:]]*#[0-9]+'; then
+          if echo "$PR_BODY" | grep -iE '(fixes|closes|resolves)?[[:space:]]*#[0-9]+'; then
             echo "passed=true" >> $GITHUB_OUTPUT
             exit 0
           fi

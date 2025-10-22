@@ -58,8 +58,10 @@ jobs:
       # Check if issue has a description
       - name: Check issue has description
         id: check-description
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          if [ -z "${{ github.event.issue.body }}" ]; then
+          if [ -z "$ISSUE_BODY" ]; then
             echo "passed=false" >> $GITHUB_OUTPUT
           else
             echo "passed=true" >> $GITHUB_OUTPUT
