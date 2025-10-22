@@ -1,0 +1,159 @@
+name: Step 7 # Reference issue in PR
+
+# Checks if the learner completed tasks for step 7.
+# - Triggers when a pull request is created or edited with the correct branch.
+# - Checks that the PR references the issue.
+# - If all checks pass, the workflow is disabled so it doesn't run again.
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
+
+permissions:
+  contents: read
+  actions: write
+  issues: write
+  pull-requests: read
+
+env:
+  STEP_8_FILE: ".github/steps/8-review-pull-request.md"
+
+jobs:
+  find_exercise:
+    name: Find Exercise Issue
+    uses: skills/exercise-toolkit/.github/workflows/find-exercise-issue.yml@v0.1.0
+
+  check_step_work:
+    name: Check step work
+    runs-on: ubuntu-latest
+    needs: find_exercise
+    if: |
+      !github.event.repository.is_template &&
+      github.head_ref == 'add-favorite-color'
+    env:
+      ISSUE_URL: ${{ needs.find_exercise.outputs.issue-url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Get response templates
+        uses: actions/checkout@v4
+        with:
+          repository: skills/exercise-toolkit
+          path: exercise-toolkit
+          ref: v0.1.0
+
+      - name: Update comment - checking work
+        run: |
+          gh issue comment "$ISSUE_URL" \
+            --body-file exercise-toolkit/markdown-templates/step-feedback/checking-work.md \
+            --edit-last
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # START: Check practical exercise
+
+      - name: Check PROFILE.md was modified
+        id: check-file
+        run: |
+          if [ -f "PROFILE.md" ]; then
+            echo "passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "passed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for issue reference in PR body or commits
+        id: check-reference
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          # Check if PR body contains issue reference (e.g., #1, Fixes #1, Closes #1)
+          if echo "$PR_BODY" | grep -iE '(fixes|closes|resolves)?[[:space:]]*#[0-9]+'; then
+            echo "passed=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Also check commit messages for issue references
+          if git log --oneline | grep -iE '(fixes|closes|resolves)?[[:space:]]*#[0-9]+'; then
+            echo "passed=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "passed=false" >> $GITHUB_OUTPUT
+
+      - name: Fail if checks didn't pass
+        if: steps.check-file.outputs.passed == 'false' || steps.check-reference.outputs.passed == 'false'
+        run: |
+          if [ "${{ steps.check-file.outputs.passed }}" == "false" ]; then
+            echo "PROFILE.md was not found or modified"
+          fi
+          if [ "${{ steps.check-reference.outputs.passed }}" == "false" ]; then
+            echo "No issue reference found in PR description or commits"
+          fi
+          exit 1
+
+      # END: Check practical exercise
+
+      - name: Build message - step finished
+        id: build-message-step-finish
+        uses: skills/action-text-variables@v1
+        with:
+          template-file: exercise-toolkit/markdown-templates/step-feedback/step-finished-prepare-next-step.md
+          template-vars: |
+            next_step_number=8
+
+      - name: Update comment - step finished
+        run: |
+          gh issue comment "$ISSUE_URL" \
+            --body "${{ steps.build-message-step-finish.outputs.updated-text }}" \
+            --edit-last
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  post_next_step_content:
+    name: Post next step content
+    needs: [find_exercise, check_step_work]
+    runs-on: ubuntu-latest
+    env:
+      ISSUE_URL: ${{ needs.find_exercise.outputs.issue-url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get response templates
+        uses: actions/checkout@v4
+        with:
+          repository: skills/exercise-toolkit
+          path: exercise-toolkit
+          ref: v0.1.0
+
+      - name: Create comment - add step content
+        run: |
+          gh issue comment "$ISSUE_URL" \
+            --body-file ${{ env.STEP_8_FILE }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create comment - watching for progress
+        run: |
+          gh issue comment "$ISSUE_URL" \
+            --body-file exercise-toolkit/markdown-templates/step-feedback/watching-for-progress.md
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Disable current workflow and enable next one
+        run: |
+          gh workflow disable "Step 7"
+          gh workflow enable "Step 8"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
